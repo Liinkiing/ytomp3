@@ -1,6 +1,7 @@
 import 'url-polyfill'
 import {Command, flags} from '@oclif/command'
 import chalk from 'chalk'
+import ytdl from 'ytdl-core'
 import {validateYTUri} from './utils'
 import YTDownloader from './services/yt-downloader'
 
@@ -30,6 +31,13 @@ class Ytomp3 extends Command {
     try {
       const {args: {youtubeUrl}, flags: {bitrate, output}} = this.parse(Ytomp3)
       const bitrateKbps = `${bitrate}kbps`
+      const infos = await ytdl.getInfo(youtubeUrl)
+      this.log(`
+======================
+Title: ${chalk.blue(infos.media.song ?? infos.title)}
+Artist: ${chalk.yellow(infos.media.artist ?? 'No artist found')}
+======================
+`)
       this.log(`
 Exporting ${chalk.green(output)} with a bitrate of ${chalk.yellow(bitrateKbps)}...
 `)
