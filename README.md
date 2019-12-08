@@ -17,7 +17,7 @@ $ npm i -g @liinkiing/ytomp3
 $ yarn global add @liinkiing/ytomp3
 
 # with npx
-$ npx ytomp3
+$ npx @liinkiing/ytomp3
 ```
 
 # Usage
