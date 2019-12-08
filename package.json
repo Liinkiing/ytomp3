@@ -1,12 +1,15 @@
 {
   "name": "@liinkiing/ytomp3",
   "description": "A simple tool to export a YouTube video to a mp3",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "author": "Omar Jbara <omar.jbara2@gmail.com>",
   "bin": {
+    "@liinkiing/ytomp3": "./bin/run",
     "ytomp3": "./bin/run"
   },
-  "bugs": "https://github.com/Liinkiing/ytomp3/issues",
+  "bugs": {
+    "url": "https://github.com/Liinkiing/ytomp3/issues"
+  },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.0.20",
     "@oclif/command": "^1",
@@ -21,7 +24,7 @@
   "devDependencies": {
     "@types/chalk": "^2.2.0",
     "@types/fluent-ffmpeg": "^2.1.11",
-    "@types/node": "^10",
+    "@types/node": "^12.12.14",
     "eslint": "^5.13",
     "eslint-config-oclif": "^3.1",
     "eslint-config-oclif-typescript": "^0.1",
@@ -50,14 +53,17 @@
   "oclif": {
     "bin": "ytomp3"
   },
-  "repository": "git://github.com/Liinkiing/ytomp3",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Liinkiing/ytomp3.git"
   },
   "scripts": {
     "posttest": "eslint . --ext .ts --config .eslintrc",
     "prepack": "rimraf lib && tsc -b",
     "test": "echo NO TESTS"
   },
-  "types": "lib/index.d.ts"
+  "types": "lib/index.d.ts",
+  "directories": {
+    "lib": "lib"
+  }
 }
