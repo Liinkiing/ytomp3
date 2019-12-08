@@ -11,15 +11,24 @@ A simple tool to export a YouTube video to a mp3
 # Installation
 ```bash
 # with npm
-npm i -g @liinkiing/ytomp3
+$ npm i -g @liinkiing/ytomp3
 
 # with yarn
-yarn global add @liinkiing/ytomp3
+$ yarn global add @liinkiing/ytomp3
 
 # with npx
-npx ytomp3
+$ npx ytomp3
 ```
+
 # Usage
-<!-- usage -->
-# Commands
-<!-- commands -->
+```
+USAGE
+  $ ytomp3 [YOUTUBE_URL] # Convert a YouTube video to a mp3 file
+
+ARGUMENTS
+  YOUTUBE_URL  The youtube video URL
+
+OPTIONS
+    -b, --bitrate=128|256|320  (required) [default: 128] Set the bitrate of the sound
+    -o, --output=output        (required) [default: exported.mp3] The output file
+```

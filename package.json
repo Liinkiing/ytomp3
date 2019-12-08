@@ -1,7 +1,7 @@
 {
   "name": "@liinkiing/ytomp3",
   "description": "A simple tool to export a YouTube video to a mp3",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Omar Jbara <omar.jbara2@gmail.com>",
   "bin": {
     "@liinkiing/ytomp3": "./bin/run",
@@ -22,6 +22,7 @@
     "ytdl-core": "^1.0.3"
   },
   "devDependencies": {
+    "@oclif/dev-cli": "^1.22.2",
     "@types/chalk": "^2.2.0",
     "@types/fluent-ffmpeg": "^2.1.11",
     "@types/node": "^12.12.14",
