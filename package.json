@@ -1,5 +1,5 @@
 {
-  "name": "ytomp3",
+  "name": "@liinkiing/ytomp3",
   "description": "A simple tool to export a YouTube video to a mp3",
   "version": "0.1.0",
   "author": "Omar Jbara <omar.jbara2@gmail.com>",
@@ -38,14 +38,22 @@
   ],
   "homepage": "https://github.com/Liinkiing/ytomp3",
   "keywords": [
-    "oclif"
+    "oclif",
+    "cli",
+    "typescript",
+    "youtube",
+    "youtube-to-mp3",
+    "ytdl"
   ],
   "license": "MIT",
   "main": "lib/index.js",
   "oclif": {
     "bin": "ytomp3"
   },
-  "repository": "Liinkiing/ytomp3",
+  "repository": "git://github.com/Liinkiing/ytomp3",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "scripts": {
     "posttest": "eslint . --ext .ts --config .eslintrc",
     "prepack": "rimraf lib && tsc -b",
