@@ -30,5 +30,6 @@ ARGUMENTS
 
 OPTIONS
     -b, --bitrate=128|256|320  (required) [default: 128] Set the bitrate of the sound
+    -n, --noThumbnail          Don't attach a thumbnail in the sound ID3 tags
     -o, --output=output        (required) [default: exported.mp3] The output file
 ```

@@ -14,7 +14,7 @@ class YTDownloader {
     .setFfmpegPath(options.ffmpeg.path)
   }
 
-  public download = async ({uri, output, bitrate = 128}: DownloadParams) => {
+  public export = async ({uri, output, bitrate = 128}: DownloadParams) => {
     return new Promise((resolve, reject) => {
       const video = ytdl(uri)
       ffmpeg(video)
