@@ -31,11 +31,13 @@ class Ytomp3 extends Command {
     try {
       const {args: {youtubeUrl}, flags: {bitrate, output}} = this.parse(Ytomp3)
       const bitrateKbps = `${bitrate}kbps`
-      const infos = await ytdl.getInfo(youtubeUrl)
+      const infos = await ytdl.getBasicInfo(youtubeUrl)
+      const thumbnail = infos.player_response.videoDetails.thumbnail.thumbnails.last()
       this.log(`
 ======================
 Title: ${chalk.blue(infos.media.song ?? infos.title)}
 Artist: ${chalk.yellow(infos.media.artist ?? 'No artist found')}
+Thumbnail: ${chalk.yellow(thumbnail.url)}
 ======================
 `)
       this.log(`

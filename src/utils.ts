@@ -1,3 +1,19 @@
+declare global {
+  interface Array<T> {
+    last(): T;
+
+    first(): T;
+  }
+}
+
+Array.prototype.last = function () {
+  return this[this.length - 1]
+}
+
+Array.prototype.first = function () {
+  return this[0]
+}
+
 export const validateYTUri = (uri: string) => {
   const matches = uri.match(/^(https?:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/)
   if (matches?.length === 0) {
