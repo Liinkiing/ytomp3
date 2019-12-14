@@ -19,7 +19,7 @@ class YTDownloader {
       const video = ytdl(uri)
       ffmpeg(video)
       .on('progress', progress => {
-        console.log(progress.timemark)
+        console.log(`Processed ${progress.timemark}`)
       })
       .on('end', () => {
         resolve()
