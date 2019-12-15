@@ -1,4 +1,3 @@
-import 'url-polyfill'
 import {Command, flags} from '@oclif/command'
 import chalk from 'chalk'
 import ytdl from 'ytdl-core'

@@ -15,16 +15,12 @@ Array.prototype.first = function () {
 }
 
 export const validateYTUri = (uri: string) => {
-  const matches = uri.match(/^(https?:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/)
+  const YOUTUBE_REGEX = new RegExp(
+    '((^(http(s)?:\\/\\/)?((w){3}.)?youtube.com?\\/watch\\?v=.+)|(^(http(s)?:\\/\\/)?((w){3}.)?youtu.be?\\/.+))',
+  )
+  const matches = uri.match(YOUTUBE_REGEX)
   if (matches?.length === 0) {
     throw new Error('Invalid YouTube url')
-  } else {
-    // I'm using 'url-polyfill'
-    // eslint-disable-next-line node/no-unsupported-features/node-builtins
-    const url = new URL(uri)
-    if (!url.searchParams.has('v')) {
-      throw new Error('No video ID found')
-    }
   }
   return uri
 }
