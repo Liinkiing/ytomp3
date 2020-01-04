@@ -41,7 +41,6 @@ class Ytomp3 extends Command {
       const thumbnail = infos.player_response.videoDetails.thumbnail.thumbnails.last()
       const artist = infos.media.artist
       const title = infos.media.song ?? infos.title
-      this.getAudioTags(title, thumbnail.url, artist)
       this.log(`
 ======================
 Title: ${chalk.blue(title)}
