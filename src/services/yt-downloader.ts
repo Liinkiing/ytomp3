@@ -4,7 +4,7 @@ import ytdl from 'ytdl-core'
 
 interface DownloadParams {
   uri: string;
-  output: string;
+  name: string;
   bitrate?: number;
 }
 
@@ -14,7 +14,7 @@ class YTDownloader {
     .setFfmpegPath(options.ffmpeg.path)
   }
 
-  public export = async ({uri, output, bitrate = 128}: DownloadParams) => {
+  public export = async ({uri, name, bitrate = 128}: DownloadParams) => {
     return new Promise((resolve, reject) => {
       const video = ytdl(uri)
       ffmpeg(video)
@@ -28,7 +28,7 @@ class YTDownloader {
         reject(error.message)
       })
       .audioBitrate(bitrate)
-      .save(output)
+      .save(name + '.mp3')
     })
   }
 }

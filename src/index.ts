@@ -1,11 +1,17 @@
 import {Command, flags} from '@oclif/command'
 import chalk from 'chalk'
-import ytdl from 'ytdl-core'
 import fetch from 'node-fetch'
 import {validateYTUri} from './utils'
 import YTDownloader from './services/yt-downloader'
 import ID3Writer from './services/id3-tag-writer'
 import {Tags} from 'node-id3'
+import ytdl from 'ytdl-core'
+import ytpl from 'ytpl'
+import {VideoInformations} from './@types'
+import os from 'os'
+import AdmZip from 'adm-zip'
+import * as fs from 'fs'
+import * as path from 'path'
 
 class Ytomp3 extends Command {
   static description = 'Convert a YouTube video to a mp3 file'
@@ -21,51 +27,89 @@ class Ytomp3 extends Command {
       default: 128,
       parse: input => Number(input),
     }),
-    output: flags.string({
-      char: 'o',
+    name: flags.string({
+      char: 'n',
       required: true,
-      default: 'exported.mp3',
-      description: 'The output file',
+      default: 'exported',
+      description: 'The output file name',
     }),
     noThumbnail: flags.boolean({
-      char: 'n',
+      char: 't',
       description: "Don't attach a thumbnail in the sound ID3 tags",
     }),
   }
 
   async run() {
     try {
-      const {args: {youtubeUrl}, flags: {bitrate, output}} = this.parse(Ytomp3)
-      const bitrateKbps = `${bitrate}kbps`
-      const infos = await ytdl.getBasicInfo(youtubeUrl)
-      const thumbnail = infos.player_response.videoDetails.thumbnail.thumbnails.last()
-      const artist = infos.media.artist
-      const title = infos.media.song ?? infos.title
-      this.log(`
-======================
-Title: ${chalk.blue(title)}
-Artist: ${chalk.yellow(artist ?? 'No artist found')}
-Thumbnail: ${chalk.yellow(thumbnail.url)}
-======================
-`)
-      this.log(`
-Exporting ${chalk.green(output)} with a bitrate of ${chalk.yellow(bitrateKbps)}...
-`)
-      const start = Date.now()
-      await YTDownloader.export({uri: youtubeUrl, output, bitrate})
-      await ID3Writer.write(
-        await this.getAudioTags(title, thumbnail.url, artist)
-        , output)
-      const duration = (Date.now() - start) / 1000
-      this.log(`
-Successfully saved ${chalk.green(output)} with a bitrate of ${chalk.yellow(bitrateKbps)} in ${chalk.blue(`~${duration}s`)}
-`)
+      const {args: {youtubeUrl}, flags: {bitrate, name}} = this.parse(Ytomp3)
+      const uri = new URL(youtubeUrl)
+      if (uri.pathname.includes('playlist')) {
+        return this.handlePlaylistExport(youtubeUrl, bitrate, name)
+      }
+
+      return this.handleVideoExport(youtubeUrl, bitrate, name)
     } catch (error) {
       this.error(error.message)
     }
   }
 
-  private getAudioTags = async (title: string, thumbnailUrl: string, artist?: string): Promise<Tags> => {
+  private exportVideo = async (uri: string, name: string, bitrate: number, infos: VideoInformations): Promise<string> => {
+    this.log(`
+======================
+Title: ${chalk.blue(infos.title ?? 'No title found')}
+Artist: ${chalk.yellow(infos.artist ?? 'No artist found')}
+Thumbnail: ${chalk.yellow(infos.thumbnail.url)}
+======================
+`)
+    const bitrateKbps = `${bitrate}kbps`
+    const filename = `${name}.mp3`
+    this.log(`
+Exporting ${chalk.green(filename)} with a bitrate of ${chalk.yellow(bitrateKbps)}...
+`)
+    const start = Date.now()
+    await YTDownloader.export({uri, name, bitrate})
+    await ID3Writer.write(
+      await this.getAudioTags(infos)
+      , filename)
+    const duration = (Date.now() - start) / 1000
+    this.log(`
+Successfully saved ${chalk.green(filename)} with a bitrate of ${chalk.yellow(bitrateKbps)} in ${chalk.blue(`~${duration}s`)}
+`)
+
+    return filename
+  }
+
+  private getVideoInformations = async (uri: string): Promise<VideoInformations> => {
+    const infos = await ytdl.getBasicInfo(uri)
+
+    return {
+      thumbnail: infos.player_response.videoDetails.thumbnail.thumbnails.last(),
+      url: infos.video_url,
+      artist: infos.media.artist,
+      title: (infos.media.song === '' || !infos.media.song) ? infos.title : infos.media.song,
+    }
+  }
+
+  private getPlaylistInformations = async (uri: string): Promise<Omit<ytpl.result, 'items'> & { items: VideoInformations[] }> => {
+    const infos = await ytpl(uri, {limit: Infinity})
+
+    return {
+      ...infos,
+      items: infos.items
+      .map(info => ({
+        title: info.title,
+        url: info.url,
+        thumbnail: {
+          width: 480,
+          height: 360,
+          url: info.thumbnail,
+        },
+        artist: info.author.name,
+      })),
+    }
+  }
+
+  private getAudioTags = async ({title, artist, thumbnail}: VideoInformations): Promise<Tags> => {
     const {flags: {noThumbnail}} = this.parse(Ytomp3)
     if (noThumbnail) {
       return {
@@ -73,7 +117,7 @@ Successfully saved ${chalk.green(output)} with a bitrate of ${chalk.yellow(bitra
         title,
       }
     }
-    const response = (await fetch(thumbnailUrl))
+    const response = (await fetch(thumbnail.url))
     const mime = response.headers.get('Content-Type')
     const imageBuffer = Buffer.from(await response.arrayBuffer())
     return {
@@ -85,6 +129,41 @@ Successfully saved ${chalk.green(output)} with a bitrate of ${chalk.yellow(bitra
         imageBuffer,
       },
     }
+  }
+
+  private handleVideoExport = async (youtubeUrl: string, bitrate: number, name: string) => {
+    const infos = await this.getVideoInformations(youtubeUrl)
+    this.exportVideo(youtubeUrl, name, bitrate, infos)
+  }
+
+  private handlePlaylistExport = async (youtubeUrl: string, bitrate: number, name: string) => {
+    const playlist = await this.getPlaylistInformations(youtubeUrl)
+    this.log(`
+Processing "${playlist.title}" playlist with ${playlist.total_items} items
+`)
+    const zip = new AdmZip()
+    const promises = playlist.items.map(item =>
+      new Promise(resolve => {
+        const entryName = item.title.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        const exportPath = `${os.tmpdir()}${path.sep}${entryName}`
+        this.exportVideo(item.url, exportPath, bitrate, item)
+        .then(filename => {
+          zip.addFile(`${entryName}.mp3`, fs.readFileSync(filename))
+          fs.unlinkSync(filename)
+          resolve()
+        })
+        .catch(error => {
+          console.error(error)
+          this.log(`Error while processing "${entryName}". Skipping it...`)
+          resolve()
+        })
+      }))
+    await Promise.all(promises)
+    const archiveName = (name === 'exported' ? playlist.title : name) + '.zip'
+    zip.writeZip(archiveName)
+    this.log(`
+Successfully saved archive "${chalk.green(archiveName)}"
+`)
   }
 }
 
