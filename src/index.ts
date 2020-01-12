@@ -14,7 +14,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 
 class Ytomp3 extends Command {
-  static description = 'Convert a YouTube video to a mp3 file'
+  static description = 'Convert a YouTube video to a mp3 file or a YouTube playlist to a zip file'
 
   static args = [{name: 'youtubeUrl', required: true, parse: validateYTUri}]
 
