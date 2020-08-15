@@ -1,11 +1,11 @@
-import NodeID3, {StaticNodeID3, Tags} from 'node-id3'
+import NodeID3 from 'node-id3'
 import sharp from 'sharp'
 
 class Id3TagWriter {
   // eslint-disable-next-line no-useless-constructor
-  constructor(private writer: StaticNodeID3) {}
+  constructor(private writer: typeof NodeID3) {}
 
-  public write = async (tags: Tags, file: (Buffer | string)) => {
+  public write = async (tags: NodeID3.Tags, file: (Buffer | string)) => {
     if (tags.image && tags.image.imageBuffer) {
       const resized = await sharp(tags.image.imageBuffer)
       .resize({
@@ -18,12 +18,14 @@ class Id3TagWriter {
       return this.writer.write({
         ...tags,
         image: {
+          description: '',
+          type: {id: 3, name: 'front cover'},
           mime: 'jpeg',
           imageBuffer: resized,
         },
-      }, file)
+      }, file as Buffer)
     }
-    return this.writer.write(tags, file)
+    return this.writer.write(tags, file as string)
   }
 }
 

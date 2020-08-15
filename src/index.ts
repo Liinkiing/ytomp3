@@ -124,7 +124,8 @@ Successfully saved ${chalk.green(filename)} with a bitrate of ${chalk.yellow(bit
       artist,
       title,
       image: {
-        mime,
+        description: '',
+        mime: mime ?? 'image/jpeg',
         type: {id: 3, name: 'front cover'},
         imageBuffer,
       },
