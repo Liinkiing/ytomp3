@@ -84,15 +84,14 @@ Successfully saved ${chalk.green(filename)} with a bitrate of ${chalk.yellow(bit
 
     return {
       thumbnail: infos.player_response.videoDetails.thumbnail.thumbnails.last(),
-      url: infos.video_url,
-      artist: infos.media.artist,
-      title: (infos.media.song === '' || !infos.media.song) ? infos.title : infos.media.song,
+      url: infos.videoDetails.video_url,
+      artist: infos.videoDetails.media.artist,
+      title: (infos.videoDetails.media.song === '' || !infos.videoDetails.media.song) ? infos.videoDetails.title : infos.videoDetails.media.song,
     }
   }
 
   private getPlaylistInformations = async (uri: string): Promise<Omit<ytpl.result, 'items'> & { items: VideoInformations[] }> => {
     const infos = await ytpl(uri, {limit: Infinity})
-
     return {
       ...infos,
       items: infos.items
