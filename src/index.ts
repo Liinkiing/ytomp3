@@ -6,7 +6,7 @@ import YTDownloader from './services/yt-downloader'
 import ID3Writer from './services/id3-tag-writer'
 import {Tags} from 'node-id3'
 import ytdl from 'ytdl-core'
-import ytpl from 'ytpl'
+import ytpl, {Result} from 'ytpl'
 import {VideoInformations} from './@types'
 import os from 'os'
 import AdmZip from 'adm-zip'
@@ -90,7 +90,7 @@ Successfully saved ${chalk.green(filename)} with a bitrate of ${chalk.yellow(bit
     }
   }
 
-  private getPlaylistInformations = async (uri: string): Promise<Omit<ytpl.result, 'items'> & { items: VideoInformations[] }> => {
+  private getPlaylistInformations = async (uri: string): Promise<Omit<Result, 'items'> & { items: VideoInformations[] }> => {
     const infos = await ytpl(uri, {limit: Infinity})
     return {
       ...infos,
@@ -101,7 +101,7 @@ Successfully saved ${chalk.green(filename)} with a bitrate of ${chalk.yellow(bit
         thumbnail: {
           width: 480,
           height: 360,
-          url: info.thumbnail,
+          url: info.bestThumbnail.url,
         },
         artist: info.author.name,
       })),
@@ -110,7 +110,7 @@ Successfully saved ${chalk.green(filename)} with a bitrate of ${chalk.yellow(bit
 
   private getAudioTags = async ({title, artist, thumbnail}: VideoInformations): Promise<Tags> => {
     const {flags: {noThumbnail}} = this.parse(Ytomp3)
-    if (noThumbnail) {
+    if (noThumbnail || !thumbnail.url) {
       return {
         artist,
         title,
@@ -139,11 +139,11 @@ Successfully saved ${chalk.green(filename)} with a bitrate of ${chalk.yellow(bit
   private handlePlaylistExport = async (youtubeUrl: string, bitrate: number, name: string) => {
     const playlist = await this.getPlaylistInformations(youtubeUrl)
     this.log(`
-Processing "${playlist.title}" playlist with ${playlist.total_items} items
+Processing "${playlist.title}" playlist with ${playlist.estimatedItemCount} items
 `)
     const zip = new AdmZip()
     const promises = playlist.items.map(item =>
-      new Promise(resolve => {
+      new Promise<void>(resolve => {
         const entryName = item.title.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
         const exportPath = `${os.tmpdir()}${path.sep}${entryName}`
         this.exportVideo(item.url, exportPath, bitrate, item)

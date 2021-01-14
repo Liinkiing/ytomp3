@@ -6,7 +6,7 @@ class Id3TagWriter {
   constructor(private writer: typeof NodeID3) {}
 
   public write = async (tags: NodeID3.Tags, file: (Buffer | string)) => {
-    if (tags.image && tags.image.imageBuffer) {
+    if (tags.image && typeof tags.image === 'object' && 'imageBuffer' in tags.image) {
       const resized = await sharp(tags.image.imageBuffer)
       .resize({
         width: 400,

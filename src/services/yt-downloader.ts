@@ -15,7 +15,7 @@ class YTDownloader {
   }
 
   public export = async ({uri, name, bitrate = 128}: DownloadParams) => {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       const video = ytdl(uri)
       ffmpeg(video)
       .on('progress', progress => {

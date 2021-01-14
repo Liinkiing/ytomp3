@@ -2,7 +2,7 @@ export interface VideoInformations {
   title: string;
   url: string;
   thumbnail: {
-    url: string;
+    url: string | null;
     width: number;
     height: number;
   };
