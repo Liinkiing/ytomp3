@@ -21,8 +21,9 @@
     "node-id3": "^0.2.2",
     "sharp": "^0.27.0",
     "tslib": "^2",
-    "ytdl-core": "^4.4.3",
-    "ytpl": "^2.0.4"
+    "ytdl": "^1.4.1",
+    "ytdl-core": "^4.8.3",
+    "ytpl": "^2.2.1"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1.26.0",
