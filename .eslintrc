@@ -4,6 +4,10 @@
     "oclif-typescript"
   ],
   "rules": {
-    "no-extend-native": ["error", { "exceptions": ["Array"]}]
+    "no-extend-native": ["error", { "exceptions": ["Array"]}],
+    "node/no-missing-import": ["error", {
+      "allowModules": [],
+      "tryExtensions": [".js", ".json", ".node", ".ts", ".d.ts"]
+    }]
   }
 }
