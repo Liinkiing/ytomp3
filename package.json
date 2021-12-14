@@ -67,10 +67,8 @@
   },
   "scripts": {
     "release": "np",
-    "posttest": "eslint . --ext .ts --config .eslintrc",
-    "prepack": "rimraf lib && tsc -b",
-    "build": "rimraf lib && tsc -b",
-    "test": "echo NO TESTS"
+    "lint": "eslint . --ext .ts --config .eslintrc",
+    "build": "rimraf lib && tsc -b"
   },
   "types": "lib/index.d.ts",
   "directories": {

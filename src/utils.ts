@@ -15,6 +15,7 @@ Array.prototype.first = function () {
 }
 
 export const validateYTUri = (uri: string) => {
+  // eslint-disable-next-line prefer-regex-literals
   const YOUTUBE_REGEX = new RegExp(
     '((^(http(s)?:\\/\\/)?((w){3}.)?youtube.com?\\/watch\\?v=.+)|(^(http(s)?:\\/\\/)?((w){3}.)?youtu.be?\\/.+))',
   )
@@ -22,5 +23,6 @@ export const validateYTUri = (uri: string) => {
   if (matches?.length === 0) {
     throw new Error('Invalid YouTube url')
   }
+
   return uri
 }

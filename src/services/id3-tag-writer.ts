@@ -25,6 +25,7 @@ class Id3TagWriter {
         },
       }, file as Buffer)
     }
+
     return this.writer.write(tags, file as string)
   }
 }
