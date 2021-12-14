@@ -8,10 +8,10 @@ import {Tags} from 'node-id3'
 import ytdl from 'ytdl-core'
 import ytpl, {Result} from 'ytpl'
 import {VideoInformations} from './@types'
-import os from 'os'
+import os from 'node:os'
 import AdmZip from 'adm-zip'
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 
 class Ytomp3 extends Command {
   static description = 'Convert a YouTube video to a mp3 file or a YouTube playlist to a zip file'
@@ -48,8 +48,10 @@ class Ytomp3 extends Command {
       }
 
       return this.handleVideoExport(youtubeUrl, bitrate, name)
-    } catch (error) {
-      this.error(error.message)
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        this.error(error.message)
+      }
     }
   }
 
@@ -91,7 +93,7 @@ Successfully saved ${chalk.green(filename)} with a bitrate of ${chalk.yellow(bit
   }
 
   private getPlaylistInformations = async (uri: string): Promise<Omit<Result, 'items'> & { items: VideoInformations[] }> => {
-    const infos = await ytpl(uri, {limit: Infinity})
+    const infos = await ytpl(uri, {limit: Number.POSITIVE_INFINITY})
     return {
       ...infos,
       items: infos.items
@@ -116,6 +118,7 @@ Successfully saved ${chalk.green(filename)} with a bitrate of ${chalk.yellow(bit
         title,
       }
     }
+
     const response = (await fetch(thumbnail.url))
     const mime = response.headers.get('Content-Type')
     const imageBuffer = Buffer.from(await response.arrayBuffer())
@@ -144,7 +147,7 @@ Processing "${playlist.title}" playlist with ${playlist.estimatedItemCount} item
     const zip = new AdmZip()
     const promises = playlist.items.map(item =>
       new Promise<void>(resolve => {
-        const entryName = item.title.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        const entryName = item.title.normalize('NFD').replace(/[\u0300-\u036F]/g, '')
         const exportPath = `${os.tmpdir()}${path.sep}${entryName}`
         this.exportVideo(item.url, exportPath, bitrate, item)
         .then(filename => {
