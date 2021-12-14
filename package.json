@@ -68,7 +68,8 @@
   "scripts": {
     "release": "np",
     "lint": "eslint . --ext .ts --config .eslintrc",
-    "build": "rimraf lib && tsc -b"
+    "build": "rimraf lib && tsc -b",
+    "prepublishOnly": "yarn build"
   },
   "types": "lib/index.d.ts",
   "directories": {
